@@ -2,6 +2,7 @@ import os
 import time
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
+from pydrive.files import GoogleDriveFile
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -18,15 +19,18 @@ scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 creds = gauth.credentials
 client = gspread.authorize(creds)
 
-folder_path = "./Deposit_bible_screenshots"
+folder_path = "./Screenshots"
 
 
 def get_or_create_folder(folder_name):
     file_list = drive.ListFile({'q': f"title='{folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"}).GetList()
-    
+
+
     if file_list:
         # Folder exists
-        return file_list[0]['id']
+        folder_id = file_list[0]['id']
+        print(f"Folder '{folder_name}' already exists with ID: {folder_id}")
+        return folder_id
     else:
         # Folder does not exist, create it
         folder_metadata = {
@@ -34,11 +38,23 @@ def get_or_create_folder(folder_name):
             'mimeType': 'application/vnd.google-apps.folder'
         }
         folder = drive.CreateFile(folder_metadata)
+
         folder.Upload()
-        return folder['id']
+        folder_id = folder['id']
+
+        permission = {
+            'type': 'anyone',
+            'value': 'anyone',
+            'role': 'writer'
+        }
+
+        folder.InsertPermission(permission)
+        print(f"Set permission for folder '{folder_name}' with ID: {folder_id}")
+
+        return folder_id
     
 
-folder_id = get_or_create_folder('Kb_dep_bible_screenshots')
+folder_id = get_or_create_folder('TR_dep_bible_screenshots')
 
 
 
