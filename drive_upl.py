@@ -54,7 +54,7 @@ def get_or_create_folder(folder_name):
         return folder_id
     
 
-folder_id = get_or_create_folder('TR_dep_bible_screenshots')
+folder_id = get_or_create_folder(f'TR_dep_bible_screenshots_{datetime.date.today()}')
 
 
 
